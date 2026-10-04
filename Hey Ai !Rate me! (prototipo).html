@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hey Ai !Rate me!</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFD93B;--card:#fff;--ink:#111;--mute:#4A4636;--acc:#FF5C8A;--acc-ink:#111;--track:#EDE7C8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1C1A14;--card:#2A271E;--ink:#FFF4C8;--mute:#BDB594;--track:#3A362A}}
+:root[data-theme="dark"]{--bg:#1C1A14;--card:#2A271E;--ink:#FFF4C8;--mute:#BDB594;--track:#3A362A}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;display:flex;justify-content:center}
+.app{width:100%;max-width:430px;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{display:none;flex:1;flex-direction:column;padding:22px 22px 28px;overflow-y:auto}
+.screen.on{display:flex}
+h1,h2,.score,.brand,.btn,.badge{font-family:'Archivo Black','Archivo',system-ui,sans-serif;font-weight:400}
+h1{font-size:40px;line-height:1.02;letter-spacing:-.025em;text-wrap:balance}
+h2{font-size:22px;letter-spacing:-.01em;margin-bottom:4px}
+p.sub{color:var(--mute);margin-top:12px;font-size:17px;line-height:1.4;max-width:32ch;font-weight:600}
+.brand{font-size:22px;display:flex;align-items:center;gap:9px;margin-bottom:30px}
+.brand i{width:26px;height:26px;border-radius:50%;border:3.5px solid var(--ink);display:inline-block;position:relative;background:var(--card)}
+.brand i::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--acc)}
+.goals{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 auto}
+.chip{border:2.5px solid var(--ink);background:var(--card);color:var(--ink);padding:10px 15px;border-radius:12px;font:600 15px 'Archivo',system-ui,sans-serif;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);transform:translate(3px,3px);box-shadow:none}
+.btn{background:var(--acc);color:var(--acc-ink);border:3px solid var(--ink);border-radius:14px;padding:16px;font-size:17px;width:100%;cursor:pointer;box-shadow:5px 5px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(5px,5px);box-shadow:none}
+.btn.ghost{background:var(--card);color:var(--ink);margin-top:14px}
+.btn:focus-visible,.chip:focus-visible,.plan:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.note{font-size:13px;color:var(--mute);text-align:center;margin-top:16px;line-height:1.4;font-weight:600}
+.pic{width:100%;aspect-ratio:4/5;border-radius:6px;object-fit:cover;background:var(--track);display:block;border:3px solid var(--ink)}
+.scan{position:relative;margin:6px 10px 24px;transform:rotate(-1.5deg);background:#fff;padding:12px 12px 44px;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink)}
+.scan .pic{border-width:2px}
+.scan::after{content:"";position:absolute;left:12px;right:12px;height:4px;background:var(--acc);border:1.5px solid var(--ink);animation:sweep 1.4s ease-in-out infinite alternate}
+@keyframes sweep{from{top:6%}to{top:70%}}
+@media (prefers-reduced-motion:reduce){.scan::after{animation:none;top:40%}}
+.status{font-size:19px;font-weight:600;text-align:center;min-height:26px}
+.top{display:flex;gap:20px;align-items:center;margin:6px 4px 26px}
+.thumb{width:100px;height:128px;object-fit:cover;flex:none;background:#fff;border:3px solid var(--ink);padding:6px 6px 22px;transform:rotate(-4deg);box-shadow:4px 4px 0 var(--ink)}
+.score{font-size:60px;line-height:1;letter-spacing:-.04em;display:inline-block;background:var(--card);border:3px solid var(--ink);border-radius:14px;padding:8px 14px;transform:rotate(2deg);box-shadow:4px 4px 0 var(--ink)}
+.score small{font-size:20px;color:var(--mute);letter-spacing:0}
+.verdict{margin-top:14px;font-weight:600;font-size:15px}
+.badge{display:inline-block;background:var(--acc);color:var(--acc-ink);font-size:13px;padding:5px 10px;border:2.5px solid var(--ink);border-radius:99px;margin-bottom:12px}
+.metric{padding:14px 0;border-top:2.5px solid var(--ink)}
+.metric .row{display:flex;justify-content:space-between;font-weight:600;font-size:17px}
+.bar{height:16px;background:var(--track);border:2.5px solid var(--ink);border-radius:99px;margin-top:9px;overflow:hidden}
+.bar b{display:block;height:100%;background:var(--acc);border-right:2.5px solid var(--ink);transition:width .7s}
+.metric small{display:block;color:var(--mute);margin-top:8px;font-size:14px;font-weight:600}
+.locked{position:relative}
+.locked>*{filter:blur(6px);pointer-events:none;user-select:none}
+.lock-cta{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;filter:none!important;pointer-events:auto!important}
+.lock-cta .btn{width:auto;padding:14px 22px}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:5}
+.sheet-bg.on{display:flex}
+.sheet{background:var(--bg);width:100%;border-top:3px solid var(--ink);border-radius:24px 24px 0 0;padding:26px 22px calc(26px + env(safe-area-inset-bottom,0px))}
+.plan{display:flex;justify-content:space-between;align-items:center;border:3px solid var(--ink);border-radius:14px;padding:14px 16px;margin-top:12px;cursor:pointer;background:var(--card);color:var(--ink);width:100%;font:inherit;font-family:'Archivo',sans-serif;text-align:left}
+.plan[aria-pressed=true]{background:var(--acc);color:var(--acc-ink);box-shadow:4px 4px 0 var(--ink)}
+.plan b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:18px}.plan span{font-size:14px;display:block;font-weight:600}
+.toast{position:absolute;left:22px;right:22px;bottom:30px;background:var(--ink);color:var(--bg);padding:14px 16px;border-radius:12px;font-weight:600;display:none;z-index:9;text-align:center}
+.field{display:block;margin-top:12px}
+.field span{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.field input,.code{width:100%;padding:14px 16px;border-radius:12px;border:3px solid var(--ink);background:var(--card);color:var(--ink);font:600 16px 'Archivo',system-ui,sans-serif}
+.field input:focus-visible,.code:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.code{font-size:30px;letter-spacing:.5em;text-align:center;padding-left:.5em;margin-top:26px;font-family:'Archivo Black',sans-serif}
+.err{color:#B3002F;font-size:14px;font-weight:600;min-height:20px;margin-top:8px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);color:var(--ink);font-family:'Archivo',sans-serif;font-weight:600}
+.gbtn b{font-family:'Archivo Black',sans-serif;font-size:19px;background:conic-gradient(#EA4335 0 25%,#FBBC05 0 50%,#34A853 0 75%,#4285F4 0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.or{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:14px;margin:22px 0 6px;font-weight:600}
+.or::before,.or::after{content:"";flex:1;height:2.5px;background:var(--ink)}
+.link{background:none;border:0;color:var(--ink);font:600 15px 'Archivo',system-ui,sans-serif;cursor:pointer;padding:8px;margin-top:8px;align-self:center;text-decoration:underline;text-underline-offset:3px}
+.link:disabled{color:var(--mute);cursor:default;text-decoration:none}
+.intro-art{flex:1;display:flex;align-items:center;justify-content:center;min-height:220px}
+.slide{display:none;flex-direction:column;flex:1}
+.slide.on{display:flex}
+.frame{width:170px;aspect-ratio:4/5;background:var(--card);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);transform:rotate(-3deg);display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:64px;color:var(--acc);-webkit-text-stroke:3px var(--ink)}
+.phone{width:140px;height:230px;border-radius:28px;border:4px solid var(--ink);background:var(--card);box-shadow:6px 6px 0 var(--ink);display:flex;align-items:center;justify-content:center;position:relative;transform:rotate(3deg)}
+.phone::before{content:"";width:46px;height:6px;border-radius:6px;background:var(--ink);position:absolute;top:12px}
+.lock{width:54px;height:42px;border-radius:10px;background:var(--acc);border:3px solid var(--ink);position:relative;margin-top:18px}
+.lock::before{content:"";position:absolute;left:8px;top:-26px;width:30px;height:28px;border:5px solid var(--ink);border-bottom:0;border-radius:20px 20px 0 0}
+.mini{width:240px;background:var(--card);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:6px 14px;transform:rotate(-2deg)}
+.mini div{display:flex;align-items:center;gap:10px;margin:12px 0;font-weight:600;font-size:14px}
+.mini div span{width:78px}
+.mini div i{flex:1;height:12px;border-radius:12px;border:2px solid var(--ink);background:var(--track);position:relative;overflow:hidden}
+.mini div i::after{content:"";position:absolute;inset:0;width:var(--w);background:var(--acc);border-right:2px solid var(--ink)}
+.dots{display:flex;gap:8px;justify-content:center;margin:18px 0}
+.dots b{width:10px;height:10px;border-radius:10px;background:var(--track);border:2px solid var(--ink)}
+.dots b.on{width:28px;background:var(--acc)}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:10px}
+.hdr .brand{margin:0}.hdr .chip{white-space:nowrap}
+.prog{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:14px 16px;margin:0 0 22px;display:flex;align-items:center;gap:14px}
+.prog b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:32px;letter-spacing:-.02em;flex:none}
+.prog span{font-size:15px;font-weight:600;line-height:1.3}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 16px;padding:8px 6px 14px}
+.cell{background:#fff;border:3px solid var(--ink);padding:6px 6px 8px;box-shadow:4px 4px 0 var(--ink);position:relative;color:#111}
+.cell:nth-child(odd){transform:rotate(-1.5deg)}.cell:nth-child(even){transform:rotate(1.5deg)}
+.cell img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;border:2px solid #111}
+.cell em{position:absolute;top:-11px;right:-8px;background:var(--acc);color:#111;border:2.5px solid #111;border-radius:99px;font:400 12px 'Archivo Black',sans-serif;padding:3px 9px;font-style:normal;transform:rotate(5deg)}
+.cap{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px}
+.cap b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:22px}
+.cap span{font-size:13px;font-weight:600}
+.pack{display:flex;justify-content:space-between;align-items:center;border:3px solid var(--ink);border-radius:14px;padding:16px;margin-top:16px;background:var(--acc);color:var(--acc-ink);box-shadow:4px 4px 0 var(--ink)}
+.pack b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:18px}.pack .price{font-size:30px}
+.pack span{display:block;font-size:14px;font-weight:600;margin-top:2px}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.hero p.sub{margin-left:auto;margin-right:auto}
+button.pack{width:100%;font:inherit;cursor:pointer;text-align:left;transition:transform .08s,box-shadow .08s}
+button.pack:active{transform:translate(4px,4px);box-shadow:none}
+button.pack:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.pack.alt{background:var(--card);color:var(--ink)}
+.brand.bn{font-size:17px;line-height:1.05;gap:8px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<section class="screen on" id="s-login">
+  <div class="brand"><i></i>Hey Ai !Rate me!</div>
+  <h1>Crea tu cuenta o entra.</h1>
+  <p class="sub">Guarda tus fotos y resultados en un solo lugar.</p>
+  <button class="btn gbtn" id="google" style="margin-top:28px"><b>G</b> Continuar con Google</button>
+  <div class="or">o con tu correo</div>
+  <label class="field"><span>Correo</span><input id="email" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com"></label>
+  <label class="field"><span>Contraseña</span><input id="pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"></label>
+  <label class="note" style="display:flex;gap:10px;align-items:flex-start;text-align:left;margin-top:16px"><input type="checkbox" id="terms" style="margin-top:2px"> <span>Acepto los <u>términos y condiciones</u> y confirmo que tengo 18 años o más.</span></label>
+  <div class="err" id="loginErr" role="alert"></div>
+  <button class="btn" id="sendCode" style="margin-top:6px">Enviar código</button>
+  
+</section>
+
+<section class="screen" id="s-code">
+  <div class="brand"><i></i>Hey Ai !Rate me!</div>
+  <h1>Revisa tu correo.</h1>
+  <p class="sub" id="codeSub">Enviamos un código de 6 dígitos.</p>
+  <input class="code" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······" aria-label="Código de 6 dígitos">
+  <div class="err" id="codeErr" role="alert"></div>
+  <button class="btn" id="verify">Verificar y entrar</button>
+  <button class="link" id="resend" disabled>Reenviar código en 30 s</button>
+  <button class="link" id="back" style="margin-top:0">Cambiar correo</button>
+  <p class="note" style="margin-top:auto">Demo: acepta cualquier código de 6 dígitos.</p>
+</section>
+
+<section class="screen" id="s-intro">
+  <div style="display:flex;justify-content:flex-end"><button class="link" id="skip" style="margin:0">Omitir</button></div>
+  <div class="slide on">
+    <div class="intro-art"><div class="frame">+</div></div>
+    <h1 style="font-size:34px">Sube una foto.</h1>
+    <p class="sub">Elige una selfie o una foto de perfil. Tus primeros 3 créditos son gratis.</p>
+  </div>
+  <div class="slide">
+    <div class="intro-art"><div class="phone"><div class="lock"></div></div></div>
+    <h1 style="font-size:34px">Tus fotos son privadas.</h1>
+    <p class="sub">Solo tú las ves. Se guardan en tu galería personal.</p>
+  </div>
+  <div class="slide">
+    <div class="intro-art"><div class="mini">
+      <div><span>Armonía</span><i style="--w:86%"></i></div><div><span>Definición</span><i style="--w:72%"></i></div>
+      <div><span>Simetría</span><i style="--w:81%"></i></div><div><span>Mandíbula</span><i style="--w:77%"></i></div>
+      <div><span>Cejas</span><i style="--w:90%"></i></div><div><span>Ojos</span><i style="--w:84%"></i></div></div></div>
+    <h1 style="font-size:34px">Descubre tus rasgos más fuertes.</h1>
+    <p class="sub">Un análisis divertido con consejos para sacar mejores fotos.</p>
+  </div>
+  <div class="dots" aria-hidden="true"><b class="on"></b><b></b><b></b></div>
+  <button class="btn" id="next">Siguiente</button>
+</section>
+
+<section class="screen" id="s-home">
+  <div class="hdr"><div class="brand bn"><i></i><span>Hey Ai<br>!Rate me!</span></div><div style="display:flex;gap:10px;align-items:center"><span class="chip" id="credBtn" style="cursor:default">3 créditos</span><button class="chip" id="cart" aria-label="Comprar créditos" style="display:flex;align-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 11.5a2 2 0 0 0 2 1.5h7.6a2 2 0 0 0 2-1.5L21 7H6"/></svg></button></div></div>
+  <div class="hero"><h1>Descubre tus rasgos más fuertes.</h1><p class="sub">Sube una foto y conoce tu armonía facial, definición, simetría, mandíbula, cejas y ojos.</p></div>
+  <input type="file" id="file" accept="image/*" hidden>
+  <input type="file" id="cam" accept="image/*" capture="user" hidden>
+  <button class="btn" id="pick">Elegir una foto</button>
+  <button class="btn ghost" id="toGal">Mi galería</button>
+  
+</section>
+
+<section class="screen" id="s-scan">
+  <div class="brand"><i></i>Hey Ai !Rate me!</div>
+  <div class="scan"><img class="pic" id="scanImg" alt="Tu foto en análisis"></div>
+  <div class="status" id="status" aria-live="polite">Midiendo la luz…</div>
+</section>
+
+<section class="screen" id="s-res">
+  <div class="top">
+    <img class="thumb" id="resImg" alt="Tu foto">
+    <div>
+      <span class="badge" id="badge">Buena base</span>
+      <div class="score" id="score">0<small>/100</small></div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+  <h2>Tus rasgos</h2>
+  <div id="free"></div>
+  <div id="paid"></div>
+  <button class="btn" id="again" style="margin-top:20px">Analizar otra foto</button>
+  <button class="btn ghost" id="toGal2">Ver mi galería</button>
+  
+</section>
+
+<section class="screen" id="s-gal">
+  <div class="hdr"><h1 style="font-size:32px">Mi galería</h1><button class="chip" id="galBack">Volver</button></div>
+  <p class="sub" id="galSum" style="margin:0 0 14px"></p>
+  <div class="grid" id="grid"></div>
+  <p class="sub" id="galEmpty" style="display:none">Todavía no hay fotos. Analiza la primera y aparecerá aquí.</p>
+  <button class="link" id="reset">Reiniciar demo</button>
+</section>
+
+<section class="screen" id="s-shop">
+  <div class="hdr"><h1 style="font-size:32px">Tienda</h1><button class="chip" id="shopBack">Volver</button></div>
+  <p class="sub" id="shopBal" style="margin:0 0 4px"></p>
+  <p class="sub" style="margin:0 0 10px;font-size:15px">Cada foto analizada usa 1 crédito.</p>
+  <div id="packs"></div>
+</section>
+
+<div class="sheet-bg" id="sheet">
+  <div class="sheet" role="dialog" aria-label="Elegir foto">
+    <h2>Elige tu foto</h2>
+    <button class="btn" id="srcGal" style="margin-top:18px">Buscar en galería</button>
+    <button class="btn" id="srcCam" style="margin-top:18px">Tomar con la cámara</button>
+    <button class="link" id="close" style="display:block;margin:12px auto 0">Cancelar</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))};
+const toast=t=>{const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2600)};
+
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c))});
+document.querySelectorAll('.plan').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.plan').forEach(x=>x.setAttribute('aria-pressed',x===c))});
+
+
+
+
+$('close').onclick=()=>$('sheet').classList.remove('on');
+
+
+$('file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const url=URL.createObjectURL(f);
+  $('scanImg').src=url;$('resImg').src=url;
+  show('s-scan');
+  const img=new Image();
+  img.onload=()=>{
+    const r=analyze(img);lastThumb=thumb(img);
+    const msgs=['Buscando tus rasgos…','Midiendo la armonía…','Revisando simetría y contorno…','Armando tu resultado…'];
+    msgs.forEach((m,i)=>setTimeout(()=>$('status').textContent=m,i*800));
+    setTimeout(()=>render(r),3300);
+  };
+  img.src=url;
+};
+
+// Análisis aproximado en el dispositivo (canvas 96px) + variación estable por foto
+function analyze(img){
+  const W=96,H=Math.round(96*img.height/img.width)||96;
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d');x.drawImage(img,0,0,W,H);
+  const d=x.getImageData(0,0,W,H).data;
+  const L=new Float32Array(W*H);let sum=0,seed=0;
+  for(let i=0;i<W*H;i++){
+    const r=d[i*4],g=d[i*4+1],b=d[i*4+2];
+    L[i]=.299*r+.587*g+.114*b;sum+=L[i];
+    if(i%37===0)seed=(seed*31+r+g*3+b*7)%9973;
+  }
+  const n=W*H,mean=sum/n;let v=0,lap=0;
+  for(let i=0;i<n;i++)v+=(L[i]-mean)**2;
+  for(let y=1;y<H-1;y++)for(let xx=1;xx<W-1;xx++){const i=y*W+xx;
+    const l=4*L[i]-L[i-1]-L[i+1]-L[i-W]-L[i+W];lap+=l*l}
+  const cl=a=>Math.max(55,Math.min(96,Math.round(a)));
+  const arb=k=>58+((seed*(k*7+3))%31); // 58-88, estable por foto
+  const defin=cl(58+Math.min(30,(Math.sqrt(lap/n)+Math.sqrt(v/n)*.3)*.45)+(seed%5));
+  const r={definicion:defin,simetria:cl(arb(2)),mandibula:cl(arb(3)),cejas:cl(arb(4)),ojos:cl(arb(5))};
+  r.armonia=cl((r.definicion+r.simetria+r.mandibula+r.cejas+r.ojos)/5+2);
+  return r;
+}
+const NAMES={armonia:'Armonía facial',definicion:'Definición',simetria:'Simetría',mandibula:'Mandíbula',cejas:'Cejas',ojos:'Ojos'};
+const NOTE={armonia:['Buen equilibrio general.','Muy buen equilibrio general.'],definicion:['Más luz y nitidez realzan los rasgos.','Rasgos bien marcados en la foto.'],
+simetria:['Prueba la cámara de frente y a la altura de los ojos.','Se ve muy equilibrada.'],mandibula:['Una luz lateral suave marca más el contorno.','Contorno bien definido.'],
+cejas:['Un buen encuadre las deja más visibles.','Enmarcan muy bien la mirada.'],ojos:['Mira a la lente y busca luz frontal.','Mirada expresiva.']};
+function row(k,v){return `<div class="metric"><div class="row"><span>${NAMES[k]}</span><span>${v}</span></div>
+<div class="bar"><b style="width:0" data-w="${v}"></b></div><small>${NOTE[k][v>=75?1:0]}</small></div>`}
+function render(r){record(r);
+  $('free').innerHTML=row('armonia',r.armonia)+row('definicion',r.definicion);
+  $('paid').innerHTML=['simetria','mandibula','cejas','ojos'].map(k=>row(k,r[k])).join('');
+  const best=['definicion','simetria','mandibula','cejas','ojos'].sort((a,b)=>r[b]-r[a])[0];
+  $('badge').textContent=r.armonia>=80?'Rasgos destacados':'Buena base';
+  $('verdict').textContent='Lo más fuerte: '+NAMES[best].toLowerCase();
+  show('s-res');
+  const total=r.armonia;
+  let t=0;const el=$('score'),id=setInterval(()=>{t=Math.min(total,t+3);
+    el.innerHTML=t+'<small>/100</small>';if(t>=total)clearInterval(id)},18);
+  setTimeout(()=>document.querySelectorAll('.bar b').forEach(b=>b.style.width=b.dataset.w+'%'),60);
+}
+
+// Login (simulado)
+let tm;
+$('google').onclick=()=>{toast('Demo: aquí iría Google Sign-In');setTimeout(()=>show('s-home'),900)};
+$('sendCode').onclick=()=>{
+  if(!terms())return;
+  const e=$('email').value.trim(),p=$('pass').value;
+  if(!/^\S+@\S+\.\S+$/.test(e)){$('loginErr').textContent='Escribe un correo válido, por ejemplo tu@correo.com.';return}
+  if(p.length<6){$('loginErr').textContent='La contraseña necesita al menos 6 caracteres.';return}
+  $('loginErr').textContent='';$('codeSub').textContent='Enviamos un código de 6 dígitos a '+e+'.';
+  $('code').value='';$('codeErr').textContent='';show('s-code');$('code').focus();countdown();
+};
+function countdown(){
+  let n=30;const b=$('resend');b.disabled=true;clearInterval(tm);
+  b.textContent='Reenviar código en '+n+' s';
+  tm=setInterval(()=>{n--;if(n<=0){clearInterval(tm);b.disabled=false;b.textContent='Reenviar código'}else b.textContent='Reenviar código en '+n+' s'},1000);
+}
+$('code').oninput=e=>e.target.value=e.target.value.replace(/\D/g,'');
+$('resend').onclick=()=>{toast('Código reenviado');countdown()};
+$('back').onclick=()=>{clearInterval(tm);show('s-login')};
+$('verify').onclick=()=>{
+  if($('code').value.length!==6){$('codeErr').textContent='El código tiene 6 dígitos. Revisa tu correo e inténtalo de nuevo.';return}
+  clearInterval(tm);show('s-home');
+};
+
+// Introducción
+let sl=0;
+function goSlide(n){
+  sl=n;document.querySelectorAll('.slide').forEach((e,i)=>e.classList.toggle('on',i===n));
+  document.querySelectorAll('.dots b').forEach((e,i)=>e.classList.toggle('on',i===n));
+  $('next').textContent=n===2?'Empezar':'Siguiente';
+}
+function startIntro(){goSlide(0);show('s-intro')}
+$('next').onclick=()=>sl<2?goSlide(sl+1):show('s-home');
+$('skip').onclick=()=>show('s-home');
+$('google').onclick=()=>{if(!terms())return;toast('Demo: aquí iría Google Sign-In');setTimeout(startIntro,900)};
+$('verify').onclick=()=>{
+  if($('code').value.length!==6){$('codeErr').textContent='El código tiene 6 dígitos. Revisa tu correo e inténtalo de nuevo.';return}
+  clearInterval(tm);startIntro();
+};
+
+// Créditos, progreso y galería
+let st={credits:3,hist:[]},lastThumb='';
+try{const x=JSON.parse(localStorage.getItem('lente'));if(x&&x.hist)st=x}catch(e){}
+const save=()=>{try{localStorage.setItem('lente',JSON.stringify(st))}catch(e){}};
+function ui(){
+  const c=st.credits;
+  $('credBtn').textContent=c+(c===1?' crédito':' créditos');
+  $('toGal').textContent='Mi galería ('+st.hist.length+')';
+  $('pick').textContent=c>0?'Elegir una foto':'Sin créditos disponibles';
+  $('again').textContent=c>0?'Analizar otra foto ('+c+(c===1?' crédito)':' créditos)'):'Sin créditos disponibles';
+}
+const PACKS=[{n:5,p:'1.99'},{n:10,p:'3',top:1},{n:25,p:'6.99'}];
+function bal(){$('shopBal').textContent='Tienes '+st.credits+(st.credits===1?' crédito.':' créditos.')}
+function shop(){
+  bal();
+  $('packs').innerHTML=PACKS.map((k,i)=>'<button class="pack'+(k.top?'':' alt')+'" data-i="'+i+'"><div><b>'+k.n+' créditos</b><span>'+(k.top?'Más popular, ':'')+'$'+(k.p/k.n).toFixed(2)+' por crédito</span></div><b class="price">$'+k.p+'</b></button>').join('');
+  document.querySelectorAll('#packs .pack').forEach(b=>b.onclick=()=>{
+    const k=PACKS[b.dataset.i];st.credits+=k.n;save();ui();bal();toast('Demo: se sumaron '+k.n+' créditos');
+  });
+  show('s-shop');
+}
+function startPick(){if(st.credits<1){shop();return}$('sheet').classList.add('on')}
+function thumb(img){
+  const c=document.createElement('canvas');c.width=160;c.height=200;const x=c.getContext('2d');
+  const ar=.8,ir=img.width/img.height;let sw=img.width,sh=img.height,sx=0,sy=0;
+  if(ir>ar){sw=img.height*ar;sx=(img.width-sw)/2}else{sh=img.width/ar;sy=(img.height-sh)/2}
+  x.drawImage(img,sx,sy,sw,sh,0,0,160,200);return c.toDataURL('image/jpeg',.7);
+}
+function record(r){
+  const prev=st.hist.map(h=>h.score);let pct=null;
+  if(prev.length){const avg=prev.reduce((a,b)=>a+b,0)/prev.length;pct=Math.round((r.armonia-avg)/avg*100)}
+  const el=$('prog');
+  if(pct===null)el.innerHTML='<b>Primera</b><span>Sube otra foto y te diremos cuánto mejoraste.</span>';
+  else if(pct>0)el.innerHTML='<b>+'+pct+'%</b><span>Mejoraste respecto al promedio de tus fotos anteriores.</span>';
+  else if(pct===0)el.innerHTML='<b>0%</b><span>Igual que el promedio de tus fotos anteriores.</span>';
+  else el.innerHTML='<b>'+pct+'%</b><span>Un poco por debajo de tu promedio. Prueba con más luz frontal.</span>';
+  st.hist.push({id:Date.now(),score:r.armonia,pct,thumb:lastThumb});
+  st.credits=Math.max(0,st.credits-1);
+  $('again').textContent='Analizar otra foto'+(st.credits>0?(st.credits===1?' (queda 1)':' (quedan '+st.credits+')'):'');
+  save();ui();
+}
+function gal(){
+  const h=st.hist,best=Math.max(0,...h.map(x=>x.score));
+  $('galEmpty').style.display=h.length?'none':'block';
+  $('grid').innerHTML=h.slice().reverse().map(x=>{
+    const dl=x.pct==null?'Primera':(x.pct>0?'+'+x.pct+'%':x.pct+'%');
+    return '<div class="cell"><img src="'+x.thumb+'" alt="Foto con puntaje '+x.score+'">'+(x.score===best&&h.length>1?'<em>Mejor</em>':'')+'<div class="cap"><b>'+x.score+'</b><span>'+dl+'</span></div></div>'}).join('');
+  const up=h.length>1?h[h.length-1].score-h[0].score:0;
+  $('galSum').textContent=h.length?('Tienes '+h.length+(h.length===1?' foto':' fotos')+'. Tu mejor puntaje es '+best+'.'+(up>0?' Subiste '+up+' puntos desde tu primera foto.':'')):'';
+}
+
+$('toGal').onclick=$('toGal2').onclick=()=>{gal();show('s-gal')};
+$('galBack').onclick=()=>show('s-home');
+$('reset').onclick=()=>{st={credits:3,hist:[]};save();ui();gal();toast('Demo reiniciada')};
+ui();
+
+const terms=()=>{if(!$('terms').checked){$('loginErr').textContent='Acepta los términos y condiciones para continuar.';return false}return true};
+$('pick').onclick=startPick;$('again').onclick=startPick;
+$('srcGal').onclick=()=>{$('sheet').classList.remove('on');$('file').click()};
+$('srcCam').onclick=()=>{$('sheet').classList.remove('on');$('cam').click()};
+$('cam').onchange=$('file').onchange;
+$('cart').onclick=shop;$('shopBack').onclick=()=>show('s-home');
+</script>
+</body>
+</html>
